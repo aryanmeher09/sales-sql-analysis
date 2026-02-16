@@ -1,0 +1,218 @@
+/*
+==================================================
+   SALES PERFORMANCE ANALYSIS PROJECT
+   Author: Your Name
+   Description: Business insights using SQL
+==================================================
+*/
+
+-- =============================================
+-- SALES PERFORMANCE ANALYSIS
+-- =============================================
+
+-- 1. Total Sales and Total Profit
+SELECT 
+    SUM(sales) AS total_sales,
+    SUM(profit) AS total_profit
+FROM orders;
+
+
+-- 2. Year with Highest Sales
+SELECT 
+    YEAR(order_date) AS year,
+    SUM(sales) AS total_sales
+FROM orders
+GROUP BY YEAR(order_date)
+ORDER BY total_sales DESC;
+
+
+-- 3. Monthly Sales Trend
+SELECT 
+    YEAR(order_date) AS year,
+    MONTH(order_date) AS month,
+    SUM(sales) AS total_sales
+FROM orders
+GROUP BY YEAR(order_date), MONTH(order_date)
+ORDER BY year, month;
+
+
+-- 4. Region with Highest Revenue
+SELECT 
+    c.region,
+    SUM(o.sales) AS total_sales
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.region
+ORDER BY total_sales DESC;
+
+
+-- 5. State with Lowest Profit
+SELECT 
+    c.state,
+    SUM(o.profit) AS total_profit
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.state
+ORDER BY total_profit ASC;
+
+
+-- =============================================
+-- PRODUCT ANALYSIS
+-- =============================================
+
+-- 6. Top 10 Products by Sales
+SELECT 
+    p.product_name,
+    SUM(o.sales) AS total_sales
+FROM orders o
+JOIN products p ON o.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY total_sales DESC
+LIMIT 10;
+
+
+-- 7. Most Profitable Category
+SELECT 
+    p.category,
+    SUM(o.profit) AS total_profit
+FROM orders o
+JOIN products p ON o.product_id = p.product_id
+GROUP BY p.category
+ORDER BY total_profit DESC;
+
+
+-- 8. Sub-Category with Highest Discount
+SELECT 
+    p.sub_category,
+    AVG(o.discount) AS avg_discount
+FROM orders o
+JOIN products p ON o.product_id = p.product_id
+GROUP BY p.sub_category
+ORDER BY avg_discount DESC;
+
+
+-- 9. Highest Quantity Sold Products
+SELECT 
+    p.product_name,
+    SUM(o.quantity) AS total_qty
+FROM orders o
+JOIN products p ON o.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY total_qty DESC
+LIMIT 10;
+
+
+-- 10. Category with Lowest Profit Margin
+SELECT 
+    p.category,
+    SUM(o.profit)/SUM(o.sales) AS profit_margin
+FROM orders o
+JOIN products p ON o.product_id = p.product_id
+GROUP BY p.category
+ORDER BY profit_margin ASC;
+
+
+-- =============================================
+-- CUSTOMER ANALYSIS
+-- =============================================
+
+-- 11. Top 10 Customers by Spending
+SELECT 
+    c.customer_name,
+    SUM(o.sales) AS total_spent
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.customer_name
+ORDER BY total_spent DESC
+LIMIT 10;
+
+
+-- 12. Most Valuable Customer Segment
+SELECT 
+    c.segment,
+    SUM(o.sales) AS total_sales
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.segment
+ORDER BY total_sales DESC;
+
+
+-- 13. Customer Count by Region
+SELECT 
+    region,
+    COUNT(DISTINCT customer_id) AS customer_count
+FROM customers
+GROUP BY region;
+
+
+-- 14. Loss-Making Customers
+SELECT 
+    c.customer_name,
+    SUM(o.profit) AS total_profit
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.customer_name
+HAVING total_profit < 0
+ORDER BY total_profit;
+
+
+-- =============================================
+-- ORDER & SHIPPING ANALYSIS
+-- =============================================
+
+-- 15. Average Delivery Time
+SELECT 
+    AVG(DATEDIFF(ship_date, order_date)) AS avg_delivery_days
+FROM orders;
+
+
+-- 16. Most Used Shipping Mode
+SELECT 
+    ship_mode,
+    COUNT(*) AS total_orders
+FROM orders
+GROUP BY ship_mode
+ORDER BY total_orders DESC;
+
+
+-- 17. Longest Delivery Orders
+SELECT 
+    order_id,
+    DATEDIFF(ship_date, order_date) AS delivery_days
+FROM orders
+ORDER BY delivery_days DESC
+LIMIT 10;
+
+
+-- =============================================
+-- PROFIT & DISCOUNT INSIGHTS
+-- =============================================
+
+-- 18. Discount vs Profit Relationship
+SELECT 
+    discount,
+    AVG(profit) AS avg_profit
+FROM orders
+GROUP BY discount
+ORDER BY discount;
+
+
+-- 19. Region with Highest Avg Profit per Order
+SELECT 
+    c.region,
+    AVG(o.profit) AS avg_profit
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.region
+ORDER BY avg_profit DESC;
+
+
+-- 20. Loss-Making Products
+SELECT 
+    p.product_name,
+    SUM(o.profit) AS total_profit
+FROM orders o
+JOIN products p ON o.product_id = p.product_id
+GROUP BY p.product_name
+HAVING total_profit < 0
+ORDER BY total_profit;
